@@ -63,7 +63,7 @@ class LivePreviewActivity :
   private var cameraSource: CameraSource? = null
   private var preview: CameraSourcePreview? = null
   private var graphicOverlay: GraphicOverlay? = null
-  private var selectedModel = OBJECT_DETECTION
+  private var selectedModel = POSE_DETECTION
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -80,7 +80,7 @@ class LivePreviewActivity :
       Log.d(TAG, "graphicOverlay is null")
     }
 
-    val spinner = findViewById<Spinner>(R.id.spinner)
+//    val spinner = findViewById<Spinner>(R.id.spinner)
     val options: MutableList<String> = ArrayList()
     options.add(OBJECT_DETECTION)
     options.add(OBJECT_DETECTION_CUSTOM)
@@ -104,8 +104,8 @@ class LivePreviewActivity :
     // Drop down layout style - list view with radio button
     dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
     // attaching data adapter to spinner
-    spinner.adapter = dataAdapter
-    spinner.onItemSelectedListener = this
+//    spinner.adapter = dataAdapter
+//    spinner.onItemSelectedListener = this
 
     val facingSwitch = findViewById<ToggleButton>(R.id.facing_switch)
     facingSwitch.setOnCheckedChangeListener(this)

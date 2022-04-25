@@ -23,7 +23,7 @@
 
     <application
         android:name="androidx.multidex.MultiDexApplication"
-        android:icon="@drawable/logo_mlkit"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.AppCompat">
 
@@ -84,6 +84,7 @@
         <activity
             android:name=".kotlin.LivePreviewActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme">
         </activity>
 

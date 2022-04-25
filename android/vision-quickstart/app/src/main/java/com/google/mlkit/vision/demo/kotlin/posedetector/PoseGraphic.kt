@@ -19,6 +19,7 @@ package com.google.mlkit.vision.demo.kotlin.posedetector
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Rect
 import com.google.common.primitives.Ints
 import com.google.mlkit.vision.demo.GraphicOverlay
 import com.google.mlkit.vision.demo.GraphicOverlay.Graphic
@@ -26,7 +27,8 @@ import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseLandmark
 import java.lang.Math.max
 import java.lang.Math.min
-import java.util.Locale
+import java.util.*
+
 
 /** Draw the detected pose in preview.  */
 class PoseGraphic internal constructor(
@@ -40,13 +42,18 @@ class PoseGraphic internal constructor(
   private var zMin = java.lang.Float.MAX_VALUE
   private var zMax = java.lang.Float.MIN_VALUE
   private val classificationTextPaint: Paint
+  private val classificationBg: Paint
   private val leftPaint: Paint
   private val rightPaint: Paint
   private val whitePaint: Paint
 
   init {
+
+    classificationBg = Paint()
+    classificationBg.color = Color.WHITE
+
     classificationTextPaint = Paint()
-    classificationTextPaint.color = Color.WHITE
+    classificationTextPaint.color = Color.BLACK
     classificationTextPaint.textSize = POSE_CLASSIFICATION_TEXT_SIZE
     classificationTextPaint.setShadowLayer(5.0f, 0f, 0f, Color.BLACK)
 
@@ -62,6 +69,15 @@ class PoseGraphic internal constructor(
     rightPaint.color = Color.YELLOW
   }
 
+  private fun getTextBackgroundSize(x: Float, y: Float, text: String, paint: Paint): Rect {
+    val fontMetrics = paint.fontMetrics
+    val halfTextLength = paint.measureText(text)
+    return Rect(
+      x.toInt(),
+      (y + fontMetrics.top).toInt(), (x + halfTextLength).toInt(), (y + fontMetrics.bottom).toInt()
+    )
+  }
+
   override fun draw(canvas: Canvas) {
     val landmarks = pose.allPoseLandmarks
     if (landmarks.isEmpty()) {
@@ -69,11 +85,13 @@ class PoseGraphic internal constructor(
     }
 
     // Draw pose classification text.
-    val classificationX = POSE_CLASSIFICATION_TEXT_SIZE * 0.5f
+    val classificationX = POSE_CLASSIFICATION_TEXT_SIZE * 2.5f
     for (i in poseClassification.indices) {
       val classificationY = canvas.height - (
         POSE_CLASSIFICATION_TEXT_SIZE * 1.5f * (poseClassification.size - i).toFloat()
         )
+      val bg = getTextBackgroundSize(classificationX, classificationY, poseClassification[i], classificationTextPaint)
+      canvas.drawRect(bg, classificationBg)
       canvas.drawText(
         poseClassification[i],
         classificationX,
@@ -256,6 +274,6 @@ class PoseGraphic internal constructor(
     private val DOT_RADIUS = 8.0f
     private val IN_FRAME_LIKELIHOOD_TEXT_SIZE = 30.0f
     private val STROKE_WIDTH = 10.0f
-    private val POSE_CLASSIFICATION_TEXT_SIZE = 60.0f
+    private val POSE_CLASSIFICATION_TEXT_SIZE = 80.0f
   }
 }

@@ -96,7 +96,7 @@ public class PreferenceUtils {
   public static boolean shouldHideDetectionInfo(Context context) {
     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     String prefKey = context.getString(R.string.pref_key_info_hide);
-    return sharedPreferences.getBoolean(prefKey, false);
+    return sharedPreferences.getBoolean(prefKey, true);
   }
 
   public static ObjectDetectorOptions getObjectDetectorOptionsForStillImage(Context context) {
@@ -327,7 +327,7 @@ public class PreferenceUtils {
   public static boolean shouldPoseDetectionRunClassification(Context context) {
     SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
     String prefKey = context.getString(R.string.pref_key_pose_detector_run_classification);
-    return sharedPreferences.getBoolean(prefKey, false);
+    return sharedPreferences.getBoolean(prefKey, true);
   }
 
   public static boolean shouldSegmentationEnableRawSizeMask(Context context) {
