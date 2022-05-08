@@ -165,7 +165,7 @@ public class PoseClassifierProcessor {
             PoseLandmark rightWrist = pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST);
 
             if (rightHip != null && rightKnee != null && rightHeel != null && leftKnee != null && leftHeel != null && leftHip != null)
-                if (leftElbow != null && leftWrist != null && leftShoulder != null && rightElbow != null && rightWrist != null && rightShoulder != null)
+                if (leftElbow != null && leftShoulder != null && rightElbow != null && rightShoulder != null)
                     if (getAngle(leftElbow, leftShoulder, leftHip) > 90 && getAngle(rightElbow, rightShoulder, rightHip) > 90)
                         if (getAngle(leftHip, leftKnee, leftHeel) < 90 && getAngle(rightHip, rightKnee, rightHeel) > 90)
                             maxConfidenceClass = "Vrikshasana";
@@ -177,11 +177,24 @@ public class PoseClassifierProcessor {
             else if (rightKnee != null && rightHeel != null && rightHip != null && maxConfidenceClass.equals(PUSHUPS_CLASS) && getAngle(rightHip, rightKnee, rightHeel) < 110)
                 maxConfidenceClass = "Knee Push Up";
 
+            if (leftElbow != null && leftWrist != null && leftShoulder != null && rightElbow != null && rightWrist != null && rightShoulder != null)
+                if (maxConfidenceClass.equals(PUSHUPS_CLASS) && (getAngle(leftShoulder, leftElbow, leftWrist) < 95 || getAngle(rightShoulder, rightElbow, rightWrist) < 95))
+                    maxConfidenceClass = "Planks";
+                else if (getAngle(leftShoulder, leftElbow, leftWrist) < 30)
+                    maxConfidenceClass = "Bicep Curls";
+                else if (getAngle(rightShoulder, rightElbow, rightWrist) < 30)
+                    maxConfidenceClass = "Bicep Curls";
+
 
             if (rightHeel != null && leftHeel != null && leftHip != null && maxConfidenceClass.equals("squats_up") && leftElbow != null && leftShoulder != null && rightElbow != null && rightHip != null && rightShoulder != null) {
                 if (getAngle(leftElbow, leftShoulder, leftHip) > 90 && getAngle(rightElbow, rightShoulder, rightHip) > 90 && getAngle(leftHeel, leftHip, rightHeel) > 10)
                     maxConfidenceClass = "Jumping Jacks";
             }
+
+            if (leftShoulder != null && leftHip != null && leftKnee != null && rightShoulder != null && rightHip != null && rightKnee != null)
+                if (getAngle(leftShoulder, leftHip, leftKnee) < 95 && getAngle(rightShoulder, rightHip, rightKnee) < 95)
+                    maxConfidenceClass = "Leg Raise";
+
 
             if (maxConfidenceClass.equals("squats_up"))
                 maxConfidenceClass = "Standing";

@@ -61,42 +61,56 @@ class PoseDetectorProcessor(
     detector.close()
   }
 
+//  fun loadModel(): ImageLabeler {
+//    try {
+//      val localModel = LocalModel.Builder()
+//        .setAssetFilePath("file:///android_asset/model.tflite")
+//        .build()
+//
+//      val customImageLabelerOptions = CustomImageLabelerOptions.Builder(localModel)
+//        .setConfidenceThreshold(0.5f)
+//        .setMaxResultCount(5)
+//        .build()
+//      return ImageLabeling.getClient(customImageLabelerOptions)
+//    }
+//    catch (_:Exception){}
+//  }
+
   override fun detectInImage(image: InputImage): Task<PoseWithClassification> {
     return detector
       .process(image)
       .continueWith(
-        classificationExecutor,
-        { task ->
-          val pose = task.getResult()
-          var classificationResult: List<String> = ArrayList()
-          if (runClassification) {
-            if (poseClassifierProcessor == null) {
-              poseClassifierProcessor = PoseClassifierProcessor(context, isStreamMode)
-            }
-            classificationResult = poseClassifierProcessor!!.getPoseResult(pose)
+        classificationExecutor
+      ) { task ->
+//          val res = loadModel()
+        val pose = task.getResult()
+        var classificationResult: List<String> = ArrayList()
+        if (runClassification) {
+          if (poseClassifierProcessor == null) {
+            poseClassifierProcessor = PoseClassifierProcessor(context, isStreamMode)
           }
-          PoseWithClassification(pose, classificationResult)
+          classificationResult = poseClassifierProcessor!!.getPoseResult(pose)
         }
-      )
+        PoseWithClassification(pose, classificationResult)
+      }
   }
 
   override fun detectInImage(image: MlImage): Task<PoseWithClassification> {
     return detector
       .process(image)
       .continueWith(
-        classificationExecutor,
-        { task ->
-          val pose = task.getResult()
-          var classificationResult: List<String> = ArrayList()
-          if (runClassification) {
-            if (poseClassifierProcessor == null) {
-              poseClassifierProcessor = PoseClassifierProcessor(context, isStreamMode)
-            }
-            classificationResult = poseClassifierProcessor!!.getPoseResult(pose)
+        classificationExecutor
+      ) { task ->
+        val pose = task.getResult()
+        var classificationResult: List<String> = ArrayList()
+        if (runClassification) {
+          if (poseClassifierProcessor == null) {
+            poseClassifierProcessor = PoseClassifierProcessor(context, isStreamMode)
           }
-          PoseWithClassification(pose, classificationResult)
+          classificationResult = poseClassifierProcessor!!.getPoseResult(pose)
         }
-      )
+        PoseWithClassification(pose, classificationResult)
+      }
   }
 
   override fun onSuccess(

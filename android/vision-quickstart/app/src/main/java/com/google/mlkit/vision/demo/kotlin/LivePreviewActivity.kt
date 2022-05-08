@@ -16,19 +16,21 @@
 
 package com.google.mlkit.vision.demo.kotlin
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
 import android.util.Log
 import android.view.View
-import android.widget.AdapterView
+import android.widget.*
 import android.widget.AdapterView.OnItemSelectedListener
-import android.widget.ArrayAdapter
-import android.widget.CompoundButton
-import android.widget.ImageView
-import android.widget.Spinner
-import android.widget.Toast
-import android.widget.ToggleButton
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import com.google.android.gms.common.annotation.KeepName
 import com.google.mlkit.common.model.LocalModel
 import com.google.mlkit.vision.demo.CameraSource
@@ -53,22 +55,29 @@ import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
 import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import java.io.IOException
-import java.util.ArrayList
+import java.util.*
+
 
 /** Live preview demo for ML Kit APIs. */
 @KeepName
 class LivePreviewActivity :
-  AppCompatActivity(), OnItemSelectedListener, CompoundButton.OnCheckedChangeListener {
+  AppCompatActivity(), OnItemSelectedListener, CompoundButton.OnCheckedChangeListener, RecognitionListener {
 
   private var cameraSource: CameraSource? = null
   private var preview: CameraSourcePreview? = null
   private var graphicOverlay: GraphicOverlay? = null
   private var selectedModel = POSE_DETECTION
+  private lateinit var speechRecognizer: SpeechRecognizer
 
+  @RequiresApi(Build.VERSION_CODES.M)
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     Log.d(TAG, "onCreate")
     setContentView(R.layout.activity_vision_live_preview)
+
+    speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this)
+    speechRecognizer.setRecognitionListener(this)
+    speechRecognition()
 
     preview = findViewById(R.id.preview_view)
     if (preview == null) {
@@ -289,6 +298,52 @@ class LivePreviewActivity :
     }
   }
 
+  @RequiresApi(Build.VERSION_CODES.M)
+  private fun speechRecognition() {
+
+    if (ActivityCompat.checkSelfPermission(
+        this,
+        Manifest.permission.RECORD_AUDIO
+      ) != PackageManager.PERMISSION_GRANTED
+    ) {
+      requestPermissions(
+        arrayOf(
+          Manifest.permission.RECORD_AUDIO
+        ),
+        4
+      )
+    }
+    else {
+      val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+        putExtra(
+          RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+          RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+        )
+        putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, Locale.US.toString())
+        putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak to text")
+        putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+      }
+      Log.d(TAG, "speechRecognition: ")
+      speechRecognizer.startListening(intent)
+    }
+  }
+
+  @RequiresApi(Build.VERSION_CODES.M)
+  override fun onRequestPermissionsResult(
+    requestCode: Int,
+    permissions: Array<String?>,
+    grantResults: IntArray
+  ) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    when (requestCode) {
+      4 -> if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        speechRecognition()
+      } else {
+        Toast.makeText(this, "Permission Denied!", Toast.LENGTH_SHORT).show()
+      }
+    }
+  }
+
   /**
    * Starts or restarts the camera source, if it exists. If the camera source doesn't exist yet
    * (e.g., because onResume was called before the camera source was created), this will be called
@@ -350,5 +405,44 @@ class LivePreviewActivity :
     private const val SELFIE_SEGMENTATION = "Selfie Segmentation"
 
     private const val TAG = "LivePreviewActivity"
+  }
+
+  override fun onReadyForSpeech(p0: Bundle?) {
+    Log.d(TAG, "onReadyForSpeech: ")
+
+  }
+
+  override fun onBeginningOfSpeech() {
+  }
+
+  override fun onRmsChanged(p0: Float) {
+  }
+
+  override fun onBufferReceived(p0: ByteArray?) {
+  }
+
+  override fun onEndOfSpeech() {
+  }
+
+  override fun onError(p0: Int) {
+    Log.d(TAG, "onError: ")
+  }
+
+  override fun onResults(p0: Bundle?) {
+  }
+
+  override fun onPartialResults(partialResults: Bundle?) {
+    val result = partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+    Log.d(TAG, "onPartialResults: $result")
+    if (result != null) {
+      for (s in result) {
+        Toast.makeText(this, s, Toast.LENGTH_SHORT).show()
+//        if (s.contains("stop") || s.contains("shop") || s.contains("top"))
+
+      }
+    }
+  }
+
+  override fun onEvent(p0: Int, p1: Bundle?) {
   }
 }
