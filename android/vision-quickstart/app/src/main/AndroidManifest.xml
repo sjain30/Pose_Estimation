@@ -9,6 +9,11 @@
     ignore this conflict and import the libraries while keeping the app's lower
     minSdkVersion value. In code, will check SDK version, before calling CameraX
     APIs. -->
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+    </queries>
     <uses-sdk
         tools:overrideLibrary="
           androidx.camera.camera2, androidx.camera.core,
